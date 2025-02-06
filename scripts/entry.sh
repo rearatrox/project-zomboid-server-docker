@@ -190,11 +190,23 @@ export LD_LIBRARY_PATH="${STEAMAPPDIR}/jre64/lib:${LD_LIBRARY_PATH}"
 
 ## Fix the permissions in the data and workshop folders
 chown -R 1000:1000 /home/steam/pz-dedicated/steamapps/workshop /home/steam/Zomboid
+echo "*** INFO: Starting server to generate config files..."
+su - steam -c "export LANG=${LANG} && export LD_LIBRARY_PATH=\"${STEAMAPPDIR}/jre64/lib:${LD_LIBRARY_PATH}\" && cd ${STEAMAPPDIR} && pwd && ./start-server.sh ${ARGS}" &
 
-su - steam -c "export LANG=${LANG} && export LD_LIBRARY_PATH=\"${STEAMAPPDIR}/jre64/lib:${LD_LIBRARY_PATH}\" && cd ${STEAMAPPDIR} && pwd && ./start-server.sh ${ARGS}"
+# Wait for server.ini to be created
+while [ ! -f "${HOMEDIR}/Zomboid/Server/${SERVERNAME}.ini" ]; do
+  echo "Waiting for server.ini to be generated..."
+  sleep 2
+done
+
+# Stop the server after config generation
+echo "*** INFO: Stopping server to modify configuration..."
+su - steam -c "cd ${STEAMAPPDIR} && ./stop-server.sh"
+
+# Ensure the server is fully stopped before modifying config
+sleep 5
 
 echo "*** INFO: server.ini found! Modifying configuration with new Parameters..."
-
 # Set the UDPPort for the server. Example: 16262
 if [ -n "${UDPPORT}" ]; then
   echo "*** INFO: Setting UDPPort to ${UDPPORT} ***"
