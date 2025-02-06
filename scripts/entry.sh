@@ -140,13 +140,6 @@ if [ -n "${STEAMPORT2}" ]; then
   ARGS="${ARGS} -steamport2 ${STEAMPORT1}"
 fi
 
-# Set the UDPPort for the server. Example: 16262
-if [ -n "${UDPPORT}" ]; then
-  echo "*** INFO: Setting UDPPort to ${UDPPORT} ***"
-  SERVERNAME=$(echo "${SERVERNAME}" | sed 's/ *$//')
-  sed -i "s/^UDPPort=.*/UDPPort=${UDPPORT}/" "${HOMEDIR}/Zomboid/Server/${SERVERNAME}.ini"
-fi
-
 if [ -n "${PASSWORD}" ]; then
 	sed -i "s/Password=.*/Password=${PASSWORD}/" "${HOMEDIR}/Zomboid/Server/${SERVERNAME}.ini"
 fi
@@ -199,3 +192,16 @@ export LD_LIBRARY_PATH="${STEAMAPPDIR}/jre64/lib:${LD_LIBRARY_PATH}"
 chown -R 1000:1000 /home/steam/pz-dedicated/steamapps/workshop /home/steam/Zomboid
 
 su - steam -c "export LANG=${LANG} && export LD_LIBRARY_PATH=\"${STEAMAPPDIR}/jre64/lib:${LD_LIBRARY_PATH}\" && cd ${STEAMAPPDIR} && pwd && ./start-server.sh ${ARGS}"
+
+echo "*** INFO: server.ini found! Modifying configuration with new Parameters..."
+
+# Set the UDPPort for the server. Example: 16262
+if [ -n "${UDPPORT}" ]; then
+  echo "*** INFO: Setting UDPPort to ${UDPPORT} ***"
+  SERVERNAME=$(echo "${SERVERNAME}" | sed 's/ *$//')
+  sed -i "s/^UDPPort=.*/UDPPort=${UDPPORT}/" "${HOMEDIR}/Zomboid/Server/${SERVERNAME}.ini"
+fi
+
+# Restart server with modified settings
+echo "*** INFO: Restarting server with updated configuration..."
+su - steam -c "export LANG=${LANG} && export LD_LIBRARY_PATH=\"${STEAMAPPDIR}/jre64/lib:${LD_LIBRARY_PATH}\" && cd ${STEAMAPPDIR} && ./start-server.sh ${ARGS}"
