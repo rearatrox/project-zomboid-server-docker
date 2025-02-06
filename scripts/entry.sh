@@ -122,6 +122,8 @@ if [ -n "${PORT}" ]; then
   ARGS="${ARGS} -port ${PORT}"
 fi
 
+
+
 # Option to enable/disable VAC on Steam servers. On the server command-line use -steamvac true/false. In the server's INI file, use STEAMVAC=true/false.
 if [ -n "${STEAMVAC}" ]; then
   ARGS="${ARGS} -steamvac ${STEAMVAC,,}"
@@ -136,6 +138,12 @@ if [ -n "${STEAMPORT1}" ]; then
 fi
 if [ -n "${STEAMPORT2}" ]; then
   ARGS="${ARGS} -steamport2 ${STEAMPORT1}"
+fi
+
+# Set the UDPPort for the server. Example: 16262
+if [ -n "${UDPPORT}" ]; then
+    echo "*** INFO: Setting UDPPort to ${UDPPORT} ***"
+    sed -i "s/^UDPPort=.*/UDPPort=${UDPPORT}/" "${HOMEDIR}/Zomboid/Server/${SERVERNAME}.ini"
 fi
 
 if [ -n "${PASSWORD}" ]; then
