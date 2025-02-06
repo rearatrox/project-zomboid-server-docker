@@ -193,16 +193,31 @@ chown -R 1000:1000 /home/steam/pz-dedicated/steamapps/workshop /home/steam/Zombo
 echo "*** INFO: Starting server to generate config files..."
 su - steam -c "export LANG=${LANG} && export LD_LIBRARY_PATH=\"${STEAMAPPDIR}/jre64/lib:${LD_LIBRARY_PATH}\" && cd ${STEAMAPPDIR} && pwd && ./start-server.sh ${ARGS}" &
 
+# Speichere die Prozess-ID des Servers
+SERVER_PID=$!
+
 # Wait for server.ini to be created
 while [ ! -f "${HOMEDIR}/Zomboid/Server/${SERVERNAME}.ini" ]; do
   echo "Waiting for server.ini to be generated..."
   sleep 2
 done
 
+# Stop the server after config generation
+echo "*** INFO: Stopping server (PID: ${SERVER_PID}) to modify configuration..."
+kill ${SERVER_PID}
+
+# Ensure the server is fully stopped before modifying config
+sleep 5
+
 echo "*** INFO: server.ini found! Modifying configuration with new Parameters..."
+
 # Set the UDPPort for the server. Example: 16262
 if [ -n "${UDPPORT}" ]; then
   echo "*** INFO: Setting UDPPort to ${UDPPORT} ***"
   SERVERNAME=$(echo "${SERVERNAME}" | sed 's/ *$//')
   sed -i "s/^UDPPort=.*/UDPPort=${UDPPORT}/" "${HOMEDIR}/Zomboid/Server/${SERVERNAME}.ini"
 fi
+
+# Restart server with modified settings
+echo "*** INFO: Restarting server with updated configuration..."
+su - steam -c "export LANG=${LANG} && export LD_LIBRARY_PATH=\"${STEAMAPPDIR}/jre64/lib:${LD_LIBRARY_PATH}\" && cd ${STEAMAPPDIR} && ./start-server.sh ${ARGS}"
