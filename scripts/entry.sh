@@ -142,8 +142,9 @@ fi
 
 # Set the UDPPort for the server. Example: 16262
 if [ -n "${UDPPORT}" ]; then
-    echo "*** INFO: Setting UDPPort to ${UDPPORT} ***"
-    sed -i "s/^UDPPort=.*/UDPPort=${UDPPORT}/" "${HOMEDIR}/Zomboid/Server/${SERVERNAME}.ini"
+  echo "*** INFO: Setting UDPPort to ${UDPPORT} ***"
+  SERVERNAME=$(echo "${SERVERNAME}" | sed 's/ *$//')
+  sed -i "s/^UDPPort=.*/UDPPort=${UDPPORT}/" "${HOMEDIR}/Zomboid/Server/${SERVERNAME}.ini"
 fi
 
 if [ -n "${PASSWORD}" ]; then
