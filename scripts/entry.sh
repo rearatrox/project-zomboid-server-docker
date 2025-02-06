@@ -199,13 +199,6 @@ while [ ! -f "${HOMEDIR}/Zomboid/Server/${SERVERNAME}.ini" ]; do
   sleep 2
 done
 
-# Stop the server after config generation
-echo "*** INFO: Stopping server to modify configuration..."
-su - steam -c "cd ${STEAMAPPDIR} && ./stop-server.sh"
-
-# Ensure the server is fully stopped before modifying config
-sleep 5
-
 echo "*** INFO: server.ini found! Modifying configuration with new Parameters..."
 # Set the UDPPort for the server. Example: 16262
 if [ -n "${UDPPORT}" ]; then
@@ -213,7 +206,3 @@ if [ -n "${UDPPORT}" ]; then
   SERVERNAME=$(echo "${SERVERNAME}" | sed 's/ *$//')
   sed -i "s/^UDPPort=.*/UDPPort=${UDPPORT}/" "${HOMEDIR}/Zomboid/Server/${SERVERNAME}.ini"
 fi
-
-# Restart server with modified settings
-echo "*** INFO: Restarting server with updated configuration..."
-su - steam -c "export LANG=${LANG} && export LD_LIBRARY_PATH=\"${STEAMAPPDIR}/jre64/lib:${LD_LIBRARY_PATH}\" && cd ${STEAMAPPDIR} && ./start-server.sh ${ARGS}"
